@@ -1,5 +1,5 @@
 QT -= gui
-QT += core gui serialport charts network printsupport
+QT += core gui network printsupport
 
 CONFIG += c++14 console
 CONFIG -= app_bundle
