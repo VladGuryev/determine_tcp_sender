@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QByteArray>
+#include <QTimer>
 using namespace std;
 
 class Client : public QObject
@@ -18,20 +19,23 @@ class Client : public QObject
 public:
     explicit Client(QObject *parent = nullptr);
     void work();
-
+    ~Client();
 signals:
 
 public slots:
-    void clientConnected();
+    void writeData();
+
+private:
+    quint16 PORT = 2540;
+    QTcpSocket* socket = nullptr;
+    QTimer *timer;
+private:
+    QByteArray IntToArray(qint32 source); //Use qint32 to ensure that the number have 4 bytes
+
+private slots:
     void slotHostFound();
     void slotError(QAbstractSocket::SocketError err);
     void stateChanged(QAbstractSocket::SocketState);
-private:
-    QDataStream outputStream;
-
-    quint16 PORT = 2540;
-    QTcpSocket* m_pTcpSocket = nullptr;
-    QByteArray packet;
 };
 
 #endif // SERVER_H
