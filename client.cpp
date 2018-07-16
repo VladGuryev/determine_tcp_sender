@@ -5,8 +5,9 @@ Client::Client(QObject *parent) : QObject(parent)
 {
     socket = new QTcpSocket(this);
     timer = new QTimer(this);
-   // connect(timer, SIGNAL(timeout()), this, SLOT(writeData()));
-    connect(socket, SIGNAL(connected()), SLOT(writeData()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(writeData()));
+
+   // connect(socket, SIGNAL(connected()), SLOT(writeData()));
 
     /*  connect(socket, SIGNAL(hostFound()), SLOT(slotHostFound()));
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
@@ -35,23 +36,17 @@ Client::~Client()
 
 void Client::writeData()
 {
-    QByteArray data;
-    //data = "1";
-    data.resize(8);
-    data[0] = '1';
-    data[1] = '1';
-    data[2] = '1';
-    data[3] = '1';
-    data[4] = '1';
-    data[5] = '1';
-    data[6] = '1';
-    data[7] = '1';
-    while(true){
-        if(socket->state() == QAbstractSocket::ConnectedState){
+    QByteArray data1 = "1:31FE1CEB15B9120F";
+    QByteArray data2 = "2:F4740C7150157340";
+
+    if(socket->state() == QAbstractSocket::ConnectedState){
+//        while(1){
         //  socket->write(IntToArray(data.size())); //write size of data
-            socket->write(data);
-            cout << socket->waitForBytesWritten(3000);
-        }
+            socket->write(data1);
+            cout << socket->waitForBytesWritten(1000);
+            socket->write(data2);
+            cout << socket->waitForBytesWritten(1000);
+//        }
     }
 }
 

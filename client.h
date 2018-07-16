@@ -11,13 +11,14 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QTimer>
+#include <QThread>
 using namespace std;
 
-class Client : public QObject
+class Client : /*public QObject, */public QThread
 {
     Q_OBJECT
 public:
-    explicit Client(QObject *parent = nullptr);
+    explicit Client(QThread *parent = nullptr);
     void work();
     ~Client();
 signals:
