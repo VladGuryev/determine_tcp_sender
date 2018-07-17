@@ -11,30 +11,26 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QTimer>
-#include <QThread>
+
 using namespace std;
 
-class Client : /*public QObject, */public QThread
+class Client : public QObject
 {
     Q_OBJECT
 public:
-    explicit Client(QThread *parent = nullptr);
-    void work();
+    explicit Client(QObject *parent = nullptr);
     ~Client();
-signals:
+    void work();
 
-public slots:
+private slots:
     void writeData();
 
 private:
     quint16 PORT = 2540;
     QTcpSocket* socket = nullptr;
-    QTimer *timer;
-private:
-    QByteArray IntToArray(qint32 source); //Use qint32 to ensure that the number have 4 bytes
+    QTimer *timer = nullptr;
 
 private slots:
-    void slotHostFound();
     void slotError(QAbstractSocket::SocketError err);
     void stateChanged(QAbstractSocket::SocketState);
 };

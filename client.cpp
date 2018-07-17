@@ -1,30 +1,30 @@
 ﻿#include "client.h"
 //https://stackoverflow.com/questions/20546750/qtcpsocket-reading-and-writing
+//https://ru.stackoverflow.com/questions/654257/qtimer-%d0%bd%d0%b5-%d1%81%d1%80%d0%b0%d0%b1%d0%b0%d1%82%d1%8b%d0%b2%d0%b0%d0%b5%d1%82
 
 Client::Client(QObject *parent) : QObject(parent)
 {
     socket = new QTcpSocket(this);
     timer = new QTimer(this);
+    timer->setInterval(2000);
+
     connect(timer, SIGNAL(timeout()), this, SLOT(writeData()));
-
-   // connect(socket, SIGNAL(connected()), SLOT(writeData()));
-
-    /*  connect(socket, SIGNAL(hostFound()), SLOT(slotHostFound()));
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(slotError(QAbstractSocket::SocketError)));
-    connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-            this, SLOT(stateChanged(QAbstractSocket::SocketState)));
-    */
+ //   connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+    //        this, SLOT(stateChanged(QAbstractSocket::SocketState)));
+
 }
 
 void Client::work()
 {
     socket->connectToHost(QHostAddress::LocalHost, PORT);
     if (socket->waitForConnected(1000)){
-         qDebug("Connected to the VVOD_SLOT");
-      //   timer->start(1000);
+         cout << "Client connected to the VVOD_SLOT" << endl;
+         timer->start();
     } else {
-        cout << "client did not connect to the VVOD_SLOT";
+        cout << "Client did not connect to the VVOD_SLOT" << endl;
+        return;
     }
 }
 
@@ -36,43 +36,33 @@ Client::~Client()
 
 void Client::writeData()
 {
+    static bool in = false;
     QByteArray data1 = "1:31FE1CEB15B9120F";
     QByteArray data2 = "2:F4740C7150157340";
+    QByteArray data3 = "1:654A3C23FABC123B";
+    QByteArray data4 = "2:CF180A926BCA7399";
 
     if(socket->state() == QAbstractSocket::ConnectedState){
-//        while(1){
-        //  socket->write(IntToArray(data.size())); //write size of data
+        if(in == false){
             socket->write(data1);
-            cout << socket->waitForBytesWritten(1000);
+            socket->waitForBytesWritten(1000);
             socket->write(data2);
-            cout << socket->waitForBytesWritten(1000);
-//        }
+            socket->waitForBytesWritten(1000);
+            in = true;
+        } else {
+            socket->write(data3);
+            socket->waitForBytesWritten(1000);
+            socket->write(data4);
+            socket->waitForBytesWritten(1000);
+            in = false;
+        }
     }
-}
-
-QByteArray Client::IntToArray(qint32 source)
-{
-    //Avoid use of cast, this is the Qt way to serialize objects
-    QByteArray temp;
-    QDataStream data(&temp, QIODevice::ReadWrite);
-
-    //data.setVersion(QDataStream::Qt_5_6);
-    //data.device()->seek(0);
-    //data << quint16(temp.size() - sizeof(quint16));
-
-    data << source;
-    return temp;
-}
-
-void Client::slotHostFound()
-{
-   // cout << "host was found" << endl;
 }
 
 void Client::slotError(QAbstractSocket::SocketError err)
 {
     QString strError =
-            "Error: " + (err == QAbstractSocket::HostNotFoundError ?
+            "Log: " + (err == QAbstractSocket::HostNotFoundError ?
                          "The host was not found." :
                          err == QAbstractSocket::RemoteHostClosedError ?
                          "The remote host is closed." :
@@ -80,7 +70,7 @@ void Client::slotError(QAbstractSocket::SocketError err)
                          "The connection was refused." :
                          QString(socket->errorString())
                         );
-    cout << "slotError is: "<< err;
+    cerr <<  strError.toStdString() << endl;
 }
 
 void Client::stateChanged(QAbstractSocket::SocketState state)
